@@ -1,6 +1,7 @@
 #ifndef MATRIX_C
 #define MATRIX_C
 #include "matrix_better.h"
+#include "test.c"
 void malloc_fail(){
 	printf("malloc didn't work");
 }
@@ -152,6 +153,41 @@ bool is_det_small(double x){
 	if( x< 00000.1 && x > -0.00001) return true;
 	return false;
 }
+bool eq_zero(double x){
+	if(ABS(x) < 0.000000000000001) return true;
+	return false;
+}
+int argmax(int start, int end, double array[]){
+	int _argmax = start;
+	for(int i = start; i<end; i++){
+		if(ABS(array[i]) > ABS(array[_argmax]))  _argmax = i;
+	}
+	return _argmax;
+}
+matrix efficent_matrix_invert(matrix A){
+	int h = 0, k =0;
+	matrix B = matrix_create(A._rows,A._cols);
+	while ( h < A._rows && k < A._cols){
+		int i = argmax(h,A._rows,A.data[k]);
+		if(eq_zero(A.data[i][k])) k++;
+		else {
+			double *temp = A.data[i];
+			A.data[i] = A.data[h];
+			A.data[h] = temp;
+			for(int _i = h+1; _i<A._rows;_i++){
+				double f = A.data[_i][k]/A.data[h][k];
+				A.data[_i][k] = 0;
+				for (int j = k+1; j < A._cols; j++){
+					A.data[_i][j] = A.data[i][j] - A.data[h][j]*f;
+				}
+			}
+			h++;
+			k++;
+		}
+	}
+	return B;
+}
+		
 matrix matrix_invert(matrix A){
 	if ( A.data == NULL || A._cols!=A._rows || A._cols < 2) return (matrix){0,0,NULL};
 	if (! is_matrix_data_valid(A)) return (matrix){0,0,NULL};
