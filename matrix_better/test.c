@@ -1,10 +1,15 @@
 #include "stdio.h"
-#include "matrix.h"
+#include "matrix_better.h"
 #include <string.h>
 #include "stdlib.h"
 #define Green "\033[0;32m"
 #define Red "\033[0;31m"
 #define Reset "\033[0m"
+
+double ABS(double a){
+	if(a>0) return a;
+	return -a;
+}
 
 int passed = 0,total = 0;
 void* malloc_failed(void* ptr){
@@ -50,7 +55,7 @@ double* file_line_to_array(char* str,int line){
 	}
 	int write = 0, counter = 0;
 	char x = 1;
-	while(counter!=line || x == EOF){
+	while(counter!=line && x != EOF){
 		x = fgetc(fptr);
 		if(x == '\n') counter++;
 	}
@@ -78,15 +83,18 @@ int strcocc(char*s, char target){
 	while(*s) if(*s++ == target) x++;
 	return x;
 }
-int *name_to_nums(char *str){
-	int count = strcocc(str,'_');
+int *name_to_nums(const char *str){
+	char *temp = malloc(sizeof(str));
+	strcpy(temp,str);
+	int count = strcocc(temp,'_');
 	int *arr = (int*)malloc(sizeof(int)*count);
-	char * pch = strtok(str,"_");
+	char * pch = strtok(temp,"_");
 	count = 0;
 	while(pch!=NULL){
 		if(atoi(pch)!= 0) arr[count++] = atoi(pch);
 		pch = strtok(NULL,"_");
 	}
+	free (temp);
 	return arr;
 }
 typedef struct {
@@ -105,16 +113,18 @@ void free_arrays(arrays *A){
 }
 
 
-arrays *file_to_arrays(char* filename){
+arrays file_to_arrays(char* filename){
 	double **arr;
 	char *type;
 	int size;
-	*arr = malloc(sizeof(double*)*3);
-	if(malloc_failed(arr)==NULL) return NULL;
+	arrays temp ={arr,type,NULL,3};
+	arr = malloc(sizeof(double*)*3);
+	if(malloc_failed(arr)==NULL) return temp;
 	int *arrays_sizes = name_to_nums(filename);
-	if(malloc_failed(arrays_sizes) == NULL) return NULL;
+	temp.arrays_sizes = arrays_sizes;
+	if(malloc_failed(arrays_sizes) == NULL) return temp;
 	int count = 0;
-	if(strstr(filename,"inverse")){
+	if(NULL!=strstr(filename,"inverse")){
 		count = 0;
 		while(count != 2){
 			arr[count] = file_line_to_array(filename,count);
@@ -125,13 +135,13 @@ arrays *file_to_arrays(char* filename){
 			for(int i = 0; i<count; i++) if (arr[i] == NULL) free(arr[i]);
 			free (arr);
 			printf("malloc failed");
-			return NULL;
+			return temp;
 		}
 		size = sizeof("inverse");
-		type = malloc(size+1);
-		strcpy("inverse",type);
+		type = malloc(size);
+		strcpy(type,"inverse");
 	}
-	else if (strstr(filename,"mult")){
+	else if (NULL!=strstr(filename,"mult")){
 		count = 0;
 		while(count != 3){
 			arr[count] = file_line_to_array(filename,count);
@@ -140,42 +150,58 @@ arrays *file_to_arrays(char* filename){
 		}
 		if(count!=3) {
 			for(int i = 0; i<count; i++) if (arr[i] == NULL) free(arr[i]);
-			free (*arr);
+			free (arr);
 			printf("malloc failed");
-			return NULL;
+			return temp;
 		}
 		size = sizeof("mult");
-		type = malloc(size+1);
-		strcpy("mult",type);
+		type = malloc(size);
+		strcpy(type,"mult");
 	}
-	arrays* ret_val = malloc(sizeof(arrays));
-	if(!ret_val){
-		ret_val ={arr,type,arrays_sizes,3};
-	}
-	return ret_val;
+	temp.data = arr;
+	temp.type =type;
+	return temp;
 	
 }
-
-void matrix_test(char *str){
-	arrays* arrs =file_to_arrays(str);
-	if (!arrs || !arrs->type || !arrs->data) free_arrays(A);
-	else if(!strcmp(arrs->type,"mult")){
-		matrix* A = array_to_matrix(arrs->data[0],arrs->);
-		matrix* B = array_to_matrix(arrs->data[1]);
-
+bool compare_and_free(matrix A,matrix B){
+	bool val = true;
+	double max = 0;
+	for(int i = 0; i <A._rows; i++){
+		for(int j =0; j<A._cols; j++){
+			if( ABS (A.data[i][j] - B.data[i][j]) > max) max = ABS(A.data[i][j] - B.data[i][j]);
+		}
 	}
-	else if(!strcmp(arrs->type,"inverse")){
-		
+	matrix_print(A); matrix_print(B);
+	matrix_free(A); matrix_free(B);
+	if(max >0.0001)
+		return false;
+	return true;
+}
+void matrix_test(char *str){
+	arrays arrs = file_to_arrays(str);
+	if (!arrs.type || !arrs.data||!arrs.arrays_sizes) return; 
+	int a = arrs.arrays_sizes[0], b = arrs.arrays_sizes[1],c = arrs.arrays_sizes[2];
+
+	if(!strcmp(arrs.type,"mult")){
+		matrix A = array_to_matrix(arrs.data[0],a*b,a,b);
+		matrix B = array_to_matrix(arrs.data[1],b*c,b,c);
+		matrix expected = array_to_matrix(arrs.data[2],a*c,a,c);
+		matrix result = matrix_mult(A,B);
+		if(compare_and_free(expected,result)) printf("success!!\n");
+		else printf(":( \n");
+	}
+	else if(!strcmp(arrs.type,"inverse")){
+		matrix A = array_to_matrix(arrs.data[0],a*a,a,a);
+		matrix expected = array_to_matrix(arrs.data[1],a*a,a,a);
+		matrix result = matrix_invert(A);
+		if(compare_and_free(expected,result)) printf("success!!\n");
+		else printf(":( \n");
 	}
 }	
 
 int main(int argc,char * argv[]){
-	int size = 0;
-	double* arr = file_line_to_array(argv[1],&size);
-	for(int i = 0; i<size;i++){
-		printf("%lf ",arr[i]);
-	}
-	printf("\n");	
-	matrix_test();	
+	for(int i= 1; i<argc; i++){ 
+		matrix_test(argv[i]);
+	}	
 	return 0;
 };
