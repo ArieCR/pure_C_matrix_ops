@@ -72,7 +72,12 @@ double* file_line_to_array(char* str,int line){
 		if(x == '{') {
 			write = 1; continue;
 		}
-		if(x == ',') {ret_val[counter] = atof(buffer); counter++; char_zero(buffer,50); continue;}
+		if(x == ',' || x == '}') {
+			ret_val[counter] = atof(buffer);
+			counter++; 
+			char_zero(buffer,50);
+			continue;
+		}
 		if(write) char_append(buffer,49,x);
 	}
 	fclose(fptr);
@@ -114,8 +119,8 @@ void free_arrays(arrays *A){
 
 
 arrays file_to_arrays(char* filename){
-	double **arr;
-	char *type;
+	double **arr = NULL;
+	char *type = NULL;
 	int size;
 	arrays temp ={arr,type,NULL,3};
 	arr = malloc(sizeof(double*)*3);
@@ -164,14 +169,12 @@ arrays file_to_arrays(char* filename){
 	
 }
 bool compare_and_free(matrix A,matrix B){
-	bool val = true;
 	double max = 0;
 	for(int i = 0; i <A._rows; i++){
 		for(int j =0; j<A._cols; j++){
 			if( ABS (A.data[i][j] - B.data[i][j]) > max) max = ABS(A.data[i][j] - B.data[i][j]);
 		}
 	}
-	matrix_print(A); matrix_print(B);
 	matrix_free(A); matrix_free(B);
 	if(max >0.0001)
 		return false;
@@ -187,6 +190,7 @@ void matrix_test(char *str){
 		matrix B = array_to_matrix(arrs.data[1],b*c,b,c);
 		matrix expected = array_to_matrix(arrs.data[2],a*c,a,c);
 		matrix result = matrix_mult(A,B);
+		matrices_print(4,A,B,expected,result);
 		if(compare_and_free(expected,result)) printf("success!!\n");
 		else printf(":( \n");
 	}
@@ -194,6 +198,7 @@ void matrix_test(char *str){
 		matrix A = array_to_matrix(arrs.data[0],a*a,a,a);
 		matrix expected = array_to_matrix(arrs.data[1],a*a,a,a);
 		matrix result = matrix_invert(A);
+		matrices_print(3,A,expected,result);
 		if(compare_and_free(expected,result)) printf("success!!\n");
 		else printf(":( \n");
 	}

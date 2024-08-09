@@ -47,8 +47,9 @@ matrix matrix_mult(matrix A,matrix B){
 	if(A._cols != B._rows) return return_mat;
 	matrix C = matrix_create(A._rows,B._cols);
 	for(int i = 0; i<A._rows;i++){
-		double value = 0;
+		//9x6 6x5
 		for(int j = 0; j<B._cols; j++){
+		double value = 0;
 			for(int k =0; k < A._cols; k++) value += A.data[i][k]*B.data[k][j];
 				C.data[i][j] = value;
 			}
@@ -56,6 +57,7 @@ matrix matrix_mult(matrix A,matrix B){
 	return C;
 
 }
+
 void matrix_print(matrix A){
 	for(int i = 0; i<A._rows;i++){
 		for(int j = 0; j<A._cols; j++){
@@ -64,7 +66,18 @@ void matrix_print(matrix A){
 		printf("\n");
 	}
 }
-
+void matrices_print(int count, ... ){
+	va_list ap;
+	va_start(ap,count);
+	printf("======================================\n");
+	for (int i = 0; i<count; i++){
+		matrix A = va_arg(ap,matrix);
+		printf("matrix is: %dX%d\n",A._rows,A._cols);
+		matrix_print(A);
+		printf("======================================\n");
+	}
+	va_end(ap);
+}
 matrix array_to_matrix(double *arr,int size,int rows, int cols){
 	matrix return_mat = {0,0,NULL},A;
 	if(size != rows*cols) return return_mat;

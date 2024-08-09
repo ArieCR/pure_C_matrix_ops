@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "stdarg.h"
 typedef struct{
 	int _rows;
 	int _cols;
@@ -14,6 +15,7 @@ bool compare_and_free(matrix A,matrix B);
 void matrix_free(matrix mat);
 bool is_matrix_data_valid(matrix A);
 bool matrix_set(matrix mat,int row,int col,double value);
+void matrices_print(int count, ... );
 matrix matrix_mult(matrix A,matrix B);
 matrix matrix_add(matrix A,matrix B);
 void matrix_print(matrix A);
