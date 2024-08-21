@@ -1,7 +1,7 @@
 #ifndef MATRIX_C
 #define MATRIX_C
 #include "matrix_better.h"
-#include "test.c"
+#include "test_funcs.h"
 void malloc_fail(){
 	printf("malloc didn't work");
 }
@@ -26,6 +26,29 @@ matrix matrix_create(int rows,int cols){
 	}
 	return return_mat;
 }
+void matrix_init(matrix A,MAT_OPTIONS x){
+	switch(x){
+		case(ZERO):
+			for(int i = 0; i<A._rows;i++){
+				for(int j = 0; j<A._cols; j++){
+					A.data[i][j] = 0;
+				}
+			}
+			break;
+		case(UNIT_MAT): 
+			if(A._rows != A._cols){
+				 printf("invalid matrix\n");
+				 break;
+			}
+			for(int i = 0; i<A._rows;i++){
+				for(int j = 0; j<A._cols; j++){
+					A.data[i][j] = 0;
+					if(i == j) A.data[i][i] = 1; 
+				}
+			}
+			break;
+	}
+}	
 void matrix_free(matrix mat){
 	for(int i = 0; i < mat._rows;i++){
 		if(NULL != mat.data[i]) free(mat.data[i]);
@@ -166,7 +189,13 @@ int argmax(int start, int end, double array[]){
 }
 matrix efficent_matrix_invert(matrix A){
 	int h = 0, k =0;
+	if(!is_matrix_data_valid(A)) return (matrix){0,0,NULL};
 	matrix B = matrix_create(A._rows,A._cols);
+	if(!is_matrix_data_valid(B)){
+		 matrix_free(B);
+		 return (matrix){0,0,NULL};
+	}
+	matrix_init(B,UNIT_MAT);
 	while ( h < A._rows && k < A._cols){
 		int i = argmax(h,A._rows,A.data[k]);
 		if(eq_zero(A.data[i][k])) k++;
@@ -174,11 +203,16 @@ matrix efficent_matrix_invert(matrix A){
 			double *temp = A.data[i];
 			A.data[i] = A.data[h];
 			A.data[h] = temp;
+			
+			temp = B.data[i];
+			B.data[i] = B.data[h];
+			B.data[h] = temp;
+			
 			for(int _i = h+1; _i<A._rows;_i++){
-				double f = A.data[_i][k]/A.data[h][k];
-				A.data[_i][k] = 0;
-				for (int j = k+1; j < A._cols; j++){
-					A.data[_i][j] = A.data[i][j] - A.data[h][j]*f;
+				double f = A.data[_i][k]/A.data[h][k];	
+				for (int j = k; j < A._cols; j++){
+					A.data[_i][j] = A.data[_i][j] - A.data[h][j]*f;
+					B.data[_i][j] = B.data[_i][j] - A.data[h][j]*f;
 				}
 			}
 			h++;
