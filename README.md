@@ -4,6 +4,7 @@ Advatages:
 1. easier to code and implement algorithms when one can write A[i][j] instead of \*A(i+A->cols\*j) as implemented in V1.
 2. It offers a much better time performance when swapping between rows, sin ce row swapping can be done by just a single swap of pointer value rather than O(n) swaps of data between rows.
 3. Perhaps the biggest advantage is that allocating k times chunks of N bytes is much more likely to succeed than than allocating a continous chung of k\*N bytes due to how memory is managed in most operating systems.
+
 Disadvantages: 
 1. Using a pointer to pointers adds a significant memory overhead to smaller matrices.  
 Also included are some python scripts to generate tests for this library in the python library. 
