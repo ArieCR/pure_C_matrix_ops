@@ -1,7 +1,7 @@
 #ifndef TEST_C
 #define TEST_C
 #include "stdio.h"
-#include "matrix_better.h"
+#include "matrix.h"
 #include <string.h>
 #include "stdlib.h"
 typedef struct {

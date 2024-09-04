@@ -10,8 +10,17 @@ Disadvantages:
 1. Using a pointer to pointers adds a significant memory overhead to smaller matrices.  
 
 Also included are some python scripts to generate tests for this library in the python library. 
-A test library is also implemented, specifically for mulitplication and inversion. You can test it yourself by doing the following steps:
+A test library is also implemented, specifically for mulitplication and inversion. 
+Requirements :
+Python 
+pip install numpy 
+GCC:
+In linux : sudo apt-get install gcc.
+MacOS: via Homebrew with install gcc.
+Windows: use MinGW or WSL with a Linux distribution to install GCC
+
+You can test it yourself by doing the following steps:
 1. generating tests using the python scripts provided
-2. compiling the program using "make test" 
+2. compiling the program using the command *make test* in your preferred shell enviorement 
 3. evaluate the output of the implemented function in C in comparision to the expected output from common python libraries (implemented in my script using existing numpy methods)
 
