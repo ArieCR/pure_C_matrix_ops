@@ -1,24 +1,30 @@
 CC = gcc
-CFLAGS = -g -Wall # -Werror
-OBJ = main.o matrix.o graph.o
+CFLAGS = -g -Wall
+OBJ_MAIN = main.o matrix_better.o test_funcs.o
+OBJ_TEST = test.o test_funcs.o matrix_better.o
 
-matrix: $(OBJ)
-	$(CC) $(CFLAGS) -o matrix $(OBJ)
+# Build the main executable
+matrix_better: $(OBJ_MAIN)
+	$(CC) $(CFLAGS) -o matrix_better $(OBJ_MAIN)
 
-matrix.o: matrix.c matrix.h
-	$(CC) $(CFLAGS) -c matrix.c
-
-main.o: main.c matrix.h graph.h
-	$(CC) $(CFLAGS) -c main.c
-
-graph.o: graph.c graph.h
-	$(CC) $(CFLAGS) -c graph.c
-test.o: test.c matrix.h
-	$(CC) $(CFLAGS) -c test.c
-clean:
-	rm -f *.o matrix
-test: matrix.o test.o
-	$(CC) $(CFLAGS) -o OUT matrix.o test.o
+# Build the test executable
+test: $(OBJ_TEST)
+	$(CC) $(CFLAGS) -o OUT $(OBJ_TEST)
 	./OUT
 
+# Object file compilation
+matrix_better.o: matrix_better.c matrix_better.h
+	$(CC) $(CFLAGS) -c matrix_better.c
 
+main.o: main.c matrix_better.h
+	$(CC) $(CFLAGS) -c main.c
+
+test.o: test.c test_funcs.h matrix_better.h
+	$(CC) $(CFLAGS) -c test.c
+
+test_funcs.o: test_funcs.c test_funcs.h matrix_better.h
+	$(CC) $(CFLAGS) -c test_funcs.c
+
+# Clean up
+clean:
+	rm -f *.o matrix_better OUT
