@@ -7,6 +7,7 @@ Advatages:
 
 Disadvantages: 
 1. Using a pointer to pointers adds a significant memory overhead to smaller matrices.  
+
 Also included are some python scripts to generate tests for this library in the python library. 
 A test library is also implemented, specifically for mulitplication and inversion. You can test it yourself by doing the following steps:
 1. generating tests using the python scripts provided
