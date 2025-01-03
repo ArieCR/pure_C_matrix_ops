@@ -3,7 +3,7 @@
 #include "matrix.h"
 #include "test_funcs.h"
 void malloc_fail(){
-	printf("malloc didn't work");
+	printf("malloc didn't work\n");
 }
 
 matrix matrix_create(int rows,int cols){

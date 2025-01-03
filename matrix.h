@@ -16,9 +16,21 @@ matrix matrix_create(int rows,int cols);
 bool compare_and_free(matrix A,matrix B);
 void matrix_free(matrix mat);
 bool is_matrix_data_valid(matrix A);
+
+
 /**
-*This function sets a value in the matrix. 
+ * @brief Sets a specific element in a MATRIX at a given position.
+ *
+ * This function modifies the matrix by setting its value at the specified row and column to the provided value.
+ *
+ * @param mat The input matrix to be modified.
+ * @param row The row index of the position where the value will be set.
+ * @param col The column index of the position where the value will be set.
+ * @param value The new value that will replace the existing value at the specified position in the matrix.
+ *
+ * @return void
 */
+
 bool matrix_set(matrix mat,int row,int col,double value);
 /**
 *@param count number of arguments to be printed
